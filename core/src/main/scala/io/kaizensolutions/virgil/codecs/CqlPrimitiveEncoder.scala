@@ -2,8 +2,9 @@ package io.kaizensolutions.virgil.codecs
 
 import com.datastax.oss.driver.api.core.`type`._
 import com.datastax.oss.driver.api.core.data.CqlDuration
-import com.datastax.oss.driver.api.core.data.{SettableByName, SettableByIndex}
+import com.datastax.oss.driver.api.core.data.{SettableByIndex, SettableByName}
 import com.datastax.oss.driver.api.core.data.UdtValue
+import com.datastax.oss.driver.api.core.data.TupleValue
 
 import scala.jdk.CollectionConverters._
 
@@ -305,6 +306,14 @@ object CqlPrimitiveEncoder {
     encoder: CqlUdtValueEncoder.Object[A]
   ): CqlPrimitiveEncoder.WithDriver[A, UdtValue] =
     UdtValueEncoderPrimitiveEncoder(encoder)
+
+  case object TupleValuePrimitiveEncoder extends CqlPrimitiveEncoder[TupleValue] {
+    type DriverType = TupleValue
+    def driverClass: Class[DriverType]                                       = classOf[DriverType]
+    def scala2Driver(scalaValue: TupleValue, dataType: DataType): DriverType = scalaValue
+  }
+  implicit val tupleValuePrimitiveEncoder: CqlPrimitiveEncoder.WithDriver[TupleValue, TupleValue] =
+    TupleValuePrimitiveEncoder
 
   final case class ListPrimitiveEncoder[Collection[_], ScalaElem, DriverElem](
     element: CqlPrimitiveEncoder.WithDriver[ScalaElem, DriverElem],

@@ -71,4 +71,15 @@ class CollectionsSpec(global: GlobalRead) extends IOSuite with ResourceSuite wit
       } yield expect.all(result == OptionCollectionRow(1, None, None, None), resultPop == popRow)
     }
   }
+
+  test("Read and write a row that contains tuples") { executor =>
+    import TupleCollectionRow._
+    forall(TupleCollectionRow.gen) { row =>
+      for {
+        _         <- executor.executeMutation(insert(row))
+        actual    <- executor.execute(select(row.id)).compile.toList
+        resultAll <- executor.execute(selectAll).compile.toList
+      } yield expect.all(actual.length == 1, actual.head == row, resultAll.contains(row))
+    }
+  }
 }

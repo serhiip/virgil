@@ -7,6 +7,9 @@ import io.kaizensolutions.virgil.cql._
 import io.kaizensolutions.virgil.dsl._
 import org.scalacheck.Gen
 import zio.test.{Gen => ZGen}
+//import com.datastax.oss.driver.api.core.data.TupleValue
+//import com.datastax.oss.driver.api.core.`type`.DataTypes
+import io.kaizensolutions.virgil.codecs.CqlRowDecoder
 
 object CollectionsSpecDatatypes {
   final case class SimpleCollectionRow(
@@ -129,5 +132,44 @@ object CollectionsSpecDatatypes {
         .from(tableName)
         .columns("id", "opt_map_test", "opt_set_test", "opt_list_test")
         .build[OptionCollectionRow]
+  }
+
+  final case class TupleCollectionRow(
+    id: Int,
+    @CqlColumn("tuple_value_test") m: (String, Float)
+  )
+  object TupleCollectionRow extends TupleCollectionRowInstances {
+    val gen: Gen[TupleCollectionRow] =
+      for {
+        id    <- Gen.posNum[Int]
+        tuple <- Gen.nonEmptyTuple2Of[String, Float](Gen.stringOf(Gen.alphaNumChar), Gen.double.map(_.toFloat))
+        //tv     = DataTypes.tupleOf(DataTypes.TEXT, DataTypes.FLOAT).newValue().setString(0, tuple._1).setFloat(1, tuple._2)
+      } yield TupleCollectionRow(id, tuple)
+
+    private val tableName = "collectionspec_tuplecollectiontable"
+    def truncate: CQL[MutationResult] =
+      (cql"TRUNCATE " ++ tableName.asCql).mutation
+
+    def insert(in: TupleCollectionRow): CQL[MutationResult] =
+      InsertBuilder(tableName)
+        .value("id", in.id)
+        .value("tuple_value_test", in.m)
+        .build
+
+    def select(id: Int): CQL[TupleCollectionRow] = {
+      val _ = CqlRowDecoder[TupleCollectionRow]
+      SelectBuilder
+        .from(tableName)
+        .column("id")
+        .column("tuple_value_test")
+        .where("id" === id)
+        .build[TupleCollectionRow]
+    }
+
+    val selectAll: CQL[TupleCollectionRow] =
+      SelectBuilder
+        .from(tableName)
+        .columns("id", "tuple_value_test")
+        .build[TupleCollectionRow]
   }
 }

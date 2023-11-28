@@ -31,6 +31,12 @@ package object models {
     def nonEmptyVectorOf[A](element: Gen[A]): Gen[Vector[A]] =
       Gen.nonEmptyListOf(element).map(_.toVector)
 
+    def nonEmptyTuple2Of[A, B](element1: Gen[A], element2: Gen[B]): Gen[Tuple2[A, B]] =
+      for {
+        el1 <- element1
+        el2 <- element2
+      } yield (el1, el2)
+
     def stringBounded(min: Int, max: Int)(elem: Gen[Char]): Gen[String] =
       for {
         n <- Gen.chooseNum(min, max)

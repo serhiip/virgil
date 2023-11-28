@@ -31,6 +31,7 @@ trait ResourceSuite {
   implicit val SimpleCollectionRowShow: Show[CollectionsSpecDatatypes.SimpleCollectionRow] = Show.fromToString
   implicit val NestedCollectionRowShow: Show[CollectionsSpecDatatypes.NestedCollectionRow] = Show.fromToString
   implicit val OptionCollectionRowShow: Show[CollectionsSpecDatatypes.OptionCollectionRow] = Show.fromToString
+  implicit val TupleCollectionRowShow: Show[CollectionsSpecDatatypes.TupleCollectionRow]   = Show.fromToString
 
   implicit val SelectPageRowShow: Show[CqlExecutorSpecDatatypes.SelectPageRow]       = Show.fromToString
   implicit val ExecuteTestTableShow: Show[CqlExecutorSpecDatatypes.ExecuteTestTable] = Show.fromToString

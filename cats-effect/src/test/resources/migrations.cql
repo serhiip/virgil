@@ -99,6 +99,12 @@ CREATE TABLE collectionspec_optioncollectiontable
     opt_list_test FROZEN<LIST<TEXT>>
 );
 
+CREATE TABLE collectionspec_tuplecollectiontable
+(
+    id                INT PRIMARY KEY,
+    tuple_value_test  TUPLE<TEXT, FLOAT>
+);
+
 CREATE TABLE collectionspec_nestedcollectiontable
 (
     a int PRIMARY KEY,

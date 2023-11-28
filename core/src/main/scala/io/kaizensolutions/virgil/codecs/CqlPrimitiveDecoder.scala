@@ -9,6 +9,8 @@ import com.datastax.oss.driver.api.core.data.GettableByIndex
 import com.datastax.oss.driver.api.core.data.GettableByName
 import com.datastax.oss.driver.api.core.data.UdtValue
 import io.kaizensolutions.virgil.codecs.CqlPrimitiveDecoder.UdtValueDecoderPrimitiveDecoder
+import com.datastax.oss.driver.api.core.data.TupleValue
+import com.datastax.oss.driver.internal.core.`type`.DefaultTupleType
 
 import scala.jdk.CollectionConverters._
 import scala.util.Try
@@ -391,6 +393,22 @@ object CqlPrimitiveDecoder extends LowPriorityCqlPrimitiveDecoderInstances {
     def driver2Scala(driverValue: DriverType, dataType: DataType): A =
       decoder.decode(driverValue)
   }
+
+  case object TupleValuePrimitiveDecoder extends CqlPrimitiveDecoder[TupleValue] {
+    type DriverType = TupleValue
+    def driverClass: Class[DriverType]                                        = classOf[DriverType]
+    def driver2Scala(driverValue: TupleValue, dataType: DataType): TupleValue = driverValue
+  }
+  implicit val tuplevaluePrimitiveDecoder: CqlPrimitiveDecoder.WithDriver[TupleValue, TupleValue] =
+    TupleValuePrimitiveDecoder
+
+  case object TupleValuePrimitiveDecoder2 extends CqlPrimitiveDecoder[DefaultTupleType] {
+    type DriverType = DefaultTupleType
+    def driverClass: Class[DriverType]                                                    = classOf[DriverType]
+    def driver2Scala(driverValue: DefaultTupleType, dataType: DataType): DefaultTupleType = driverValue
+  }
+  implicit val tuplevaluePrimitiveDecoder2: CqlPrimitiveDecoder.WithDriver[DefaultTupleType, DefaultTupleType] =
+    TupleValuePrimitiveDecoder2
 
   final case class ListPrimitiveDecoder[Collection[_], ScalaElem, DriverElem](
     element: CqlPrimitiveDecoder.WithDriver[ScalaElem, DriverElem],
